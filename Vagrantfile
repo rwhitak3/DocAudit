@@ -69,7 +69,7 @@ Vagrant.configure(2) do |config|
         echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
         sudo apt-get -y -q update
         sudo apt-get install -y -q tesseract-ocr tesseract-ocr-eng oracle-java8-installer
-        echo "export TESSDATA_PREFIX=/usr/share/tesseract-ocr/tessdata/" >> /home/vagrant/.bashrc
+        echo "export TESSDATA_PREFIX=/usr/share/tesseract-ocr/tessdata/" >> /home/ubuntu/.profile
         sudo update-java-alternatives -s java-8-oracle
         sudo apt-get install -y -q gradle
    SHELL
