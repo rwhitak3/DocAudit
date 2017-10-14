@@ -9,6 +9,9 @@
 
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
+group = groupName
+version = versionNumber
+sourceCompatibility = sourceCompatibilityLevel
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -24,10 +27,29 @@ dependencies {
     compile 'org.slf4j:slf4j-log4j12:1.7.13'
     compile "org.apache.pdfbox:pdfbox:2.0.4"
     compile "org.bytedeco.javacpp-presets:tesseract-platform:3.04.01-1.3"
+    compile group: 'args4j', name: 'args4j', version: '2.33'
+
 
     // Declare the dependency for your favourite test framework you want to use in your tests.
     // TestNG is also supported by the Gradle Test task. Just change the
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
     // 'test.useTestNG()' to your build script.
     testCompile 'junit:junit:4.12'
+}
+
+jar {
+    from(configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }) {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    manifest {
+        attributes 'Implementation-Title': 'DocAudit',
+            'Implementation-Version': version,
+            'Built-By': System.getProperty('user.name'),
+            'Built-Date': new Date(),
+            'Built-JDK': System.getProperty('java.version'),
+            'Main-Class': 'edu.kennesaw.cs4850.docaudit.Main'
+    }
+
 }
