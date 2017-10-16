@@ -34,9 +34,15 @@ public class ReadPDFPDFBox implements ReadPDF {
             String imgOutput = "";
             if ( textOutput.length() < 20 ) {
                 imgOutput = readImages(parser.getPDDocument());
+            } else {
+                logger.info("Found Mobile Text Document");
+                return textOutput;
             }
             if (imgOutput.length() > 20) {
                 textOutput = imgOutput;
+                logger.info("Found Scanned image Document");
+            } else {
+                logger.info("Found Mobile Text Document");
             }
             return textOutput;
             
