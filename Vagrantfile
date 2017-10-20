@@ -65,12 +65,14 @@ Vagrant.configure(2) do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
    config.vm.provision "shell", inline: <<-SHELL
-        sudo add-apt-repository ppa:webupd8team/java
-        echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+        #sudo add-apt-repository ppa:webupd8team/java
+        #echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
         sudo apt-get -y -q update
-        sudo apt-get install -y -q tesseract-ocr tesseract-ocr-eng oracle-java8-installer
+        #sudo apt-get install -y -q tesseract-ocr tesseract-ocr-eng oracle-java8-installer
+        sudo apt-get install -y -q tesseract-ocr tesseract-ocr-eng openjdk-8-jdk
         echo "export TESSDATA_PREFIX=/usr/share/tesseract-ocr/tessdata/" >> /home/ubuntu/.profile
-        sudo update-java-alternatives -s java-8-oracle
+        #sudo update-java-alternatives -s java-8-oracle
         sudo apt-get install -y -q gradle
    SHELL
 end
+ch
