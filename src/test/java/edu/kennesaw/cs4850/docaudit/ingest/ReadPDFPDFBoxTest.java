@@ -23,13 +23,15 @@ public class ReadPDFPDFBoxTest {
         //Read the output of the w4 form
         assertTrue("Error Reading Text Form W-4", out.startsWith("Form W-4 (2017)"));
         //logger.debug("Text = " + out);
+    }
+
+    @Test
+    public void ReadPDFPDFBoxImageTest() {
         logger.info("Reading Image PDF");
-        ReadPDFPDFBox p1 = new ReadPDFPDFBox();
+        ReadPDFPDFBox p = new ReadPDFPDFBox();
         URL u2 = this.getClass().getResource("/fw4-image.pdf");
         File f2 = new File(u2.getFile());
         String out2 = p.readPDF(f2);
         assertTrue("Error Reading image Form W-4", out2.startsWith("The exceptions don't ply"));
-        
-        
     }
 }
