@@ -11,4 +11,9 @@ vagrant up
 vagrant ssh
 cd /vagrant
 gradle build test
+
+Then Try:
+java -jar build/libs/DocAudit-1.0.jar -learn -img -file src/test/resources/fw4.pdf
+and 
+java -jar build/libs/DocAudit-1.0.jar -img -file src/test/resources/fw4-image.pdf
 </pre></code>

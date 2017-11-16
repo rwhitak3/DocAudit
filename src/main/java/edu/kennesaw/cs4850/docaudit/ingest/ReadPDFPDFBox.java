@@ -4,15 +4,22 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.LinkedList;
+
+import edu.kennesaw.cs4850.docaudit.model.Document;
+import edu.kennesaw.cs4850.docaudit.model.Page;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.io.RandomAccessFile;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.slf4j.LoggerFactory;
 import edu.kennesaw.cs4850.docaudit.convert.ImageToText;
 import edu.kennesaw.cs4850.docaudit.convert.ImageToTextTesseract;
+
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -54,7 +61,44 @@ public class ReadPDFPDFBox implements ReadPDF {
             return null;
         }
     }
-    
+
+    @Override
+    public Document createDocumentFromPDF(File inputFile) {
+        try {
+            //PDFParser p = new PDFParser(new RandomAccessFile(inputFile, "r"));
+            //p.parse();
+            PDDocument doc = PDDocument.load(inputFile);
+            PDFRenderer rend = new PDFRenderer(doc);
+            int pageCount = doc.getNumberOfPages();
+            if ( pageCount <= 0 ) {
+                logger.error("PDF File Contains no pages");
+                return null;
+            }
+            Document nuDoc = new Document();
+            nuDoc.setFileName(inputFile.getAbsolutePath());
+            nuDoc.setName(inputFile.getName());
+            LinkedList<Page> pages = new LinkedList<>();
+            for ( int i=1; i< pageCount;i++ ) {
+                BufferedImage b = rend.renderImageWithDPI(i, 300);
+                Page nuPage = new Page();
+                nuPage.setPageNumber(i);
+                nuPage.setImgContents(b);
+                pages.add(nuPage);
+                //File outputfile = new File("saved.png");
+                //ImageIO.write(b, "png", outputfile);
+                //logger.info("Done");
+                //return null;
+            }
+            nuDoc.setPages(pages);
+            return nuDoc;
+        } catch (FileNotFoundException e) {
+            logger.error("Failed to load PDF", e);
+        } catch (IOException e) {
+            logger.error("Failed to load PDF", e);
+        }
+        return null;
+    }
+
     private String readCosDoc(COSDocument cosDoc) throws IOException {
         PDFTextStripper pdfStripper = new PDFTextStripper();
 

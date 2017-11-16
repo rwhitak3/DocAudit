@@ -5,6 +5,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.MapSerializer;
 import edu.kennesaw.cs4850.docaudit.Docs;
+import edu.kennesaw.cs4850.docaudit.model.Document;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
@@ -51,6 +52,11 @@ public class SaveFile {
             Input input = new Input(new FileInputStream(fileName));
             Docs result = (Docs) kryo.readObject(input, Docs.class);
             input.close();
+            if (result.getDocumentList() != null ) {
+                for ( Document d : result.getDocumentList() ) {
+                    d.init();
+                }
+            }
             return result;
         } catch (Exception ex) {
             logger.error("Issue with Loading", ex);
