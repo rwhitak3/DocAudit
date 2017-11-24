@@ -10,5 +10,5 @@ import java.io.File;
  */
 public interface ReadPDF {
     public String readPDF( File inputFile);
-    public Document createDocumentFromPDF (File inputFile);
+    public Document createDocumentFromPDF (File inputFile) throws Exception;
 }

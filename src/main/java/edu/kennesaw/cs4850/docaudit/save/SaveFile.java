@@ -3,20 +3,25 @@ package edu.kennesaw.cs4850.docaudit.save;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.serializers.MapSerializer;
-import edu.kennesaw.cs4850.docaudit.Docs;
+import edu.kennesaw.cs4850.docaudit.model.Docs;
 import edu.kennesaw.cs4850.docaudit.model.Document;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SaveFile {
-    private static String fileName = "/tmp/DocAudi/out.file";
+    private static String fileName;
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(SaveFile.class);
     private static Kryo kryo;
+
+    public static String getFileName() {
+        return fileName;
+    }
+
+    public static void setFileName(String fileName) {
+        SaveFile.fileName = fileName;
+    }
 
     public static void init() {
         kryo = new Kryo();

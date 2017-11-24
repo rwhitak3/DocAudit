@@ -1,4 +1,4 @@
-package edu.kennesaw.cs4850.docaudit;
+package edu.kennesaw.cs4850.docaudit.model;
 
 import com.esotericsoftware.kryo.serializers.CollectionSerializer;
 import com.esotericsoftware.kryo.serializers.DefaultSerializers;

@@ -103,7 +103,7 @@ public class CompareDocsImpl implements  CompareDocs{
 
         double hist = compareHistogram(a, b);
         double template = 0.00;
-        if ( hist > .8) {
+        if ( hist > .65) {
             template = compareTemplate(a, b);
         }
         return (hist*.2)+(template*.8);

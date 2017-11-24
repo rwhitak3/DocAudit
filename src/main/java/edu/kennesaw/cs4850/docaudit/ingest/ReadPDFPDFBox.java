@@ -63,7 +63,7 @@ public class ReadPDFPDFBox implements ReadPDF {
     }
 
     @Override
-    public Document createDocumentFromPDF(File inputFile) {
+    public Document createDocumentFromPDF(File inputFile) throws Exception {
         try {
             //PDFParser p = new PDFParser(new RandomAccessFile(inputFile, "r"));
             //p.parse();
@@ -96,7 +96,7 @@ public class ReadPDFPDFBox implements ReadPDF {
         } catch (IOException e) {
             logger.error("Failed to load PDF", e);
         }
-        return null;
+        throw new Exception("Error reading file");
     }
 
     private String readCosDoc(COSDocument cosDoc) throws IOException {
