@@ -64,10 +64,11 @@ public class ReadPDFPDFBox implements ReadPDF {
 
     @Override
     public Document createDocumentFromPDF(File inputFile) throws Exception {
+        PDDocument doc = null;
         try {
             //PDFParser p = new PDFParser(new RandomAccessFile(inputFile, "r"));
             //p.parse();
-            PDDocument doc = PDDocument.load(inputFile);
+            doc = PDDocument.load(inputFile);
             PDFRenderer rend = new PDFRenderer(doc);
             int pageCount = doc.getNumberOfPages();
             if ( pageCount <= 0 ) {
@@ -79,7 +80,7 @@ public class ReadPDFPDFBox implements ReadPDF {
             nuDoc.setName(inputFile.getName());
             LinkedList<Page> pages = new LinkedList<>();
             for ( int i=1; i< pageCount;i++ ) {
-                BufferedImage b = rend.renderImageWithDPI(i, 300);
+                BufferedImage b = rend.renderImageWithDPI(i, 100);
                 Page nuPage = new Page();
                 nuPage.setPageNumber(i);
                 nuPage.setImgContents(b);
@@ -89,12 +90,17 @@ public class ReadPDFPDFBox implements ReadPDF {
                 //logger.info("Done");
                 //return null;
             }
+            doc.close();
             nuDoc.setPages(pages);
             return nuDoc;
         } catch (FileNotFoundException e) {
             logger.error("Failed to load PDF", e);
         } catch (IOException e) {
             logger.error("Failed to load PDF", e);
+        } finally {
+            if ( doc != null ) {
+                doc.close();
+            }
         }
         throw new Exception("Error reading file");
     }
@@ -108,6 +114,7 @@ public class ReadPDFPDFBox implements ReadPDF {
 
         String output = pdfStripper.getText(pdDoc);
         logger.debug("Output: " + output);
+        pdDoc.close();
         return output;    
     }
 
