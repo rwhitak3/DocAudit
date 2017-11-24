@@ -25,7 +25,7 @@ public class ReadPDFPDFBoxTest {
         //logger.debug("Text = " + out);
     }
 
-    @Test
+    //@Test
     public void ReadPDFPDFBoxImageTest() {
         logger.info("Reading Image PDF");
         ReadPDFPDFBox p = new ReadPDFPDFBox();
