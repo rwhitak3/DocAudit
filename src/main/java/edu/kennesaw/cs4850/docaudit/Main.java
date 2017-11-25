@@ -77,7 +77,11 @@ public class Main {
         } else if (saveFile != null) {
             File sFile = new File(saveFile);
             if (learn) {
-                sFile.getParentFile().mkdirs();
+                if (sFile.exists() && sFile.isFile()){
+                    tryLoad = true;
+                } else {
+                    sFile.getParentFile().mkdirs();
+                }
             } else {
                 if (!sFile.exists()) {
                     logger.error("Specifiy a valid file name for the save file");
@@ -107,6 +111,9 @@ public class Main {
 
         if ( nuDocs != null ) {
             docs = nuDocs;
+            for ( Document d : docs.getDocumentList()) {
+                   logger.debug("Loaded " + d.getName());
+            }
         } else {
             if ( this.learn != true) {
                 logger.error("Unable to load already learned documents file.  Did you mean to --learn?");
