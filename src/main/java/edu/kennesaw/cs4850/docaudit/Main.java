@@ -2,6 +2,7 @@ package edu.kennesaw.cs4850.docaudit;
 
 import edu.kennesaw.cs4850.docaudit.compare.CompareDocs;
 import edu.kennesaw.cs4850.docaudit.compare.CompareDocsImpl;
+import edu.kennesaw.cs4850.docaudit.compare.MatchScoresComparator;
 import edu.kennesaw.cs4850.docaudit.ingest.ReadPDF;
 import edu.kennesaw.cs4850.docaudit.ingest.ReadPDFPDFBox;
 
@@ -13,9 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import edu.kennesaw.cs4850.docaudit.model.Docs;
-import edu.kennesaw.cs4850.docaudit.model.Document;
-import edu.kennesaw.cs4850.docaudit.model.Page;
+import edu.kennesaw.cs4850.docaudit.model.*;
 import edu.kennesaw.cs4850.docaudit.save.SaveFile;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -149,31 +148,49 @@ public class Main {
                         docs.getDocumentList().add(doc);
                     } else {
                         CompareDocs cmp = new CompareDocsImpl();
-                        Document highestDoc;
-                        for (Page p : doc.getPages()) {
-                            logger.debug("Reading Page: " + p.getPageNumber());
-                            Double highestScore = 0.00;
-                            Page highestPage = null;
-                            for (Document d : docs.getDocumentList()) {
-                                logger.debug("Comparing to document:" + d.getName());
-                                for (Page p2 : d.getPages()) {
-                                    Double score = cmp.compare(p.getImgContents(), p2.getImgContents());
-                                    if (score > highestScore) {
-                                        highestPage = p2;
-                                        highestScore = score;
-                                    }
-                                    logger.debug("Image Compare Score Page " + p.getPageNumber() + " to page: " + p2.getPageNumber() + ": " + score);
-                                }
-                            }
-                            if (highestScore > 0.00) {
-                                logger.info("Highest score:" + highestScore + " Found on " + highestPage.getParentDocument().getName() + " page: " + highestPage.getPageNumber());
-                            }
+                        cmp.setImageMode(this.imgTest);
 
-                            if (highestScore >= 0.98) {
-                                logger.info("Found Match to: " + highestPage.getParentDocument().getName() + ":" + highestPage.getPageNumber() + " score: " + highestScore + " (Perfect Score 1.0)");
+                        List<MatchScore> scores = new LinkedList<>();
+
+                        for (Document compareTo : docs.getDocumentList()) {
+
+                            MatchScore m = cmp.compare(doc, compareTo);
+                            if ( m.getScore() != null) {
+                                scores.add(m);
+                            }
+                        }
+
+
+                        MatchScoresComparator matchScoresComparator = new MatchScoresComparator();
+                        //Sort
+                        scores.sort(matchScoresComparator);
+
+                        logger.debug("Found possible Matches:");
+                        for ( MatchScore m : scores) {
+                            logger.debug("Possible Match: " + m.getDoc().getName() + ":" + m.getScore() );
+                            for (PageScore ps : m.getPageScores()) {
+                                logger.debug("Page: " + ps.getSourcePage().getPageNumber() + " -> " + ps.getMatchPage().getPageNumber() + " Score:" + ps.getScore());
+                            }
+                        }
+
+                        if ( scores.size() > 0) {
+                            MatchScore best = scores.get(0);
+                            if ( best.getScore() == null ) {
+                                logger.info(doc.getName() + ": No Match Found");
+                                return;
+                            }
+                            if ( best.getScore() < 0.60 ) {
+                                logger.info(doc.getName() + ": No match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore());
+                            } else if ( best.getScore() < 0.80) {
+                                logger.info(doc.getName() + ": Possible match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore());
+                            } else if ( best.getScore() < 0.90) {
+                                logger.info(doc.getName() + ": Likely match found: " + best.getDoc().getName() + " Score:" + best.getScore());
+                            } else if ( best.getScore() < 0.95) {
+                                logger.info(doc.getName() + ": Match found: " + best.getDoc().getName() + " Score:" + best.getScore());
                             }
                         }
                     }
+
                 } catch (Exception e) {
                         logger.error("Error reading document", e);
                 }

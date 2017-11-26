@@ -5,10 +5,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import edu.kennesaw.cs4850.docaudit.model.PiecePosition;
+import edu.kennesaw.cs4850.docaudit.model.*;
 import org.languagetool.JLanguageTool;
 import org.languagetool.language.AmericanEnglish;
 import org.languagetool.rules.RuleMatch;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 public class CompareDocsImpl implements  CompareDocs{
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(CompareDocsImpl.class);
     private static JLanguageTool langTool = new JLanguageTool(new AmericanEnglish());
+    private boolean imageMode = false;
     static {
         nu.pattern.OpenCV.loadLibrary();
         System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME);
@@ -107,6 +109,131 @@ public class CompareDocsImpl implements  CompareDocs{
             template = compareTemplate(a, b);
         }
         return (hist*.2)+(template*.8);
+    }
+
+    @Override
+    public MatchScore compare(Document a, Document b) {
+        List<Page> aPages = a.getPages();
+        List<Page> bPages = b.getPages();
+        MatchScore output = new MatchScore();
+        output.setDoc(b);
+        List<PageScore> pageScoresList = new LinkedList<>();
+
+        HashMap<Integer,Page> pageMap = new HashMap<>();
+        Double sum = 0.00;
+
+        logger.debug("Comparing Doc:" + a.getName() + " to :" + b.getName());
+        if ( aPages != null && bPages != null ) {
+            for (Page p : aPages) {
+                logger.debug("Reading Page:" + p.getPageNumber());
+                PageScore bestP = new PageScore();
+                bestP.setSourcePage(p);
+                bestP.setScore(0.00);
+                bestP.setMatchPage(null);
+                for (Page p2 :bPages) {
+                    logger.debug("Comparing " + a.getName() + ":" + p.getPageNumber() + " to " + b.getName() + ":" + p2.getPageNumber());
+                    Double score = this.compare(p.getImgContents(), p2.getImgContents());
+                    logger.debug("Score:" + score);
+                    if (score > bestP.getScore()) {
+                        bestP.setScore(score);
+                        bestP.setMatchPage(p2);
+                    }
+                }
+                if (bestP.getScore() == 0 || bestP.getMatchPage() == null) {
+                    logger.error("No match found for page");
+                    continue;
+                }
+                logger.debug("Found highest score for " +a.getName() + ":" + p.getPageNumber() + " on "+  b.getName() + ":" + bestP.getMatchPage().getPageNumber() + " Score:" + bestP.getScore());
+                pageMap.put(new Integer(p.getPageNumber()), bestP.getMatchPage());
+                sum+=bestP.getScore();
+                pageScoresList.add(bestP);
+            }
+            logger.debug("Finished Page by Page comparison");
+            output.setPageScores(pageScoresList);
+
+            //Average the scores per page:
+
+            double averageScore = ( sum / pageMap.size() );
+
+            //at this point we've found matches for all of the pages, and they aren't insanely duped.
+            // However we haven't compared the page counts yet either
+
+            double pageCount = b.getPages().size()/a.getPages().size();
+
+            if ( pageCount <= .5 ) {
+                logger.debug("More than half of the pages are missing");
+                output.setMissingPages(true);
+                // reduce the averageScore by 15%
+                averageScore = averageScore*.85;
+            }
+
+
+            //Check for duplicates & Order
+            // Each page should honestly only have one match
+            // And each page should be in the same order ie Doc1 Page1 should be Doc2 Page 1 if we have a perfect match
+            int highestDuplicate = 0;
+            int outOfOrderCount = 0;
+
+            for ( int i = 1; i <= pageMap.size(); i++) {
+                Page checkPage = pageMap.get(i);
+                int duplicateCount = 0;
+                if (checkPage != null ) {
+                    for ( Page p : pageMap.values()) {
+                        if ( p.equals(checkPage)) {
+                            duplicateCount++;
+                        }
+                    }
+                    if ( checkPage.getPageNumber() != i) {
+                        outOfOrderCount++;
+                    }
+                }
+                if ( duplicateCount > highestDuplicate ) {
+                    highestDuplicate = duplicateCount;
+
+                }
+            }
+            //1/4 of all pages
+            int total_allowed = (a.getPages().size()/4);
+            if ( total_allowed < 1 ) {
+                total_allowed = 1;
+            }
+
+            if ( highestDuplicate > total_allowed) {
+                logger.error("More than 1/4 of the pages had the same match");
+                output.setScore(0.00);
+                return output;
+            } else if ( highestDuplicate > 1 ) {
+                // So we didn't have that many duplicates,
+                // but we had some
+                output.setDuplicates(highestDuplicate);
+                //reduce score by 10%
+                averageScore = averageScore*.90;
+            }
+
+
+            //Check order Matching
+            if ( outOfOrderCount > 0) {
+                //Doc not in numerical Order
+                output.setBadPageOrder(true);
+                //reduce score by 10%
+                averageScore = averageScore*.90;
+            }
+
+            //Now lets finish, our average score is reported back finally
+            output.setScore(averageScore);
+            return output;
+
+        } else {
+            logger.error("One document does not contain any pages");
+            output.setDoc(b);
+            output.setScore(0.00);
+            return output;
+        }
+    }
+
+    @Override
+    public void setImageMode(boolean mode) {
+       this.imageMode = mode;
     }
 
     public Double compareTemplate(BufferedImage a, BufferedImage b) {
