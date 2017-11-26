@@ -182,15 +182,15 @@ public class Main {
                             if ( best.getScore() <= 0.40 ) {
                                 logger.info(doc.getName() + ": No match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%");
                             } else if ( best.getScore() <= 0.60 ) {
-                                logger.info(doc.getName() + ": Unlikely match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%"));
+                                logger.info(doc.getName() + ": Unlikely match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%");
                             } else if ( best.getScore() <= 0.80) {
-                                logger.info(doc.getName() + ": Possible match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%"));
+                                logger.info(doc.getName() + ": Possible match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%");
                             } else if ( best.getScore() <= 0.90) {
-                                logger.info(doc.getName() + ": Likely match found: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%"));
+                                logger.info(doc.getName() + ": Likely match found: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%");
                             } else if ( best.getScore() <= 0.95) {
-                                logger.info(doc.getName() + ": Very Likely match found: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%"));
+                                logger.info(doc.getName() + ": Very Likely match found: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%");
                             } else if ( best.getScore() > 0.95) {
-                                logger.info(doc.getName() + ": Match found: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%"));
+                                logger.info(doc.getName() + ": Match found: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%");
                             }
                         }
                     }
