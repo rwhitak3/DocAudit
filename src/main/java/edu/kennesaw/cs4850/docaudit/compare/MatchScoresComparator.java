@@ -8,6 +8,7 @@ public class MatchScoresComparator implements Comparator<MatchScore> {
 
     @Override
     public int compare(MatchScore t1, MatchScore t2) {
-        return Double.compare(t1.getScore(), t2.getScore());
+        //Sort from highest to lowest
+        return (-1)*Double.compare(t1.getScore(), t2.getScore());
     }
 }

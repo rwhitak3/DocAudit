@@ -150,7 +150,7 @@ public class Main {
                         CompareDocs cmp = new CompareDocsImpl();
                         cmp.setImageMode(this.imgTest);
 
-                        List<MatchScore> scores = new LinkedList<>();
+                        LinkedList<MatchScore> scores = new LinkedList<>();
 
                         for (Document compareTo : docs.getDocumentList()) {
 
@@ -174,19 +174,23 @@ public class Main {
                         }
 
                         if ( scores.size() > 0) {
-                            MatchScore best = scores.get(0);
+                            MatchScore best = scores.getFirst();
                             if ( best.getScore() == null ) {
                                 logger.info(doc.getName() + ": No Match Found");
                                 return;
                             }
-                            if ( best.getScore() < 0.60 ) {
-                                logger.info(doc.getName() + ": No match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore());
-                            } else if ( best.getScore() < 0.80) {
-                                logger.info(doc.getName() + ": Possible match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore());
-                            } else if ( best.getScore() < 0.90) {
-                                logger.info(doc.getName() + ": Likely match found: " + best.getDoc().getName() + " Score:" + best.getScore());
-                            } else if ( best.getScore() < 0.95) {
-                                logger.info(doc.getName() + ": Match found: " + best.getDoc().getName() + " Score:" + best.getScore());
+                            if ( best.getScore() <= 0.40 ) {
+                                logger.info(doc.getName() + ": No match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%");
+                            } else if ( best.getScore() <= 0.60 ) {
+                                logger.info(doc.getName() + ": Unlikely match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%"));
+                            } else if ( best.getScore() <= 0.80) {
+                                logger.info(doc.getName() + ": Possible match found, Closest Match: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%"));
+                            } else if ( best.getScore() <= 0.90) {
+                                logger.info(doc.getName() + ": Likely match found: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%"));
+                            } else if ( best.getScore() <= 0.95) {
+                                logger.info(doc.getName() + ": Very Likely match found: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%"));
+                            } else if ( best.getScore() > 0.95) {
+                                logger.info(doc.getName() + ": Match found: " + best.getDoc().getName() + " Score:" + best.getScore()*100 + "%"));
                             }
                         }
                     }

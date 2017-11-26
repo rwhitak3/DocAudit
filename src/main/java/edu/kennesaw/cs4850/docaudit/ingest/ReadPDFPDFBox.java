@@ -66,20 +66,23 @@ public class ReadPDFPDFBox implements ReadPDF {
     public Document createDocumentFromPDF(File inputFile) throws Exception {
         PDDocument doc = null;
         try {
+            logger.debug("Attempting to load:" + inputFile.getAbsolutePath());
             //PDFParser p = new PDFParser(new RandomAccessFile(inputFile, "r"));
             //p.parse();
             doc = PDDocument.load(inputFile);
             PDFRenderer rend = new PDFRenderer(doc);
             int pageCount = doc.getNumberOfPages();
+
             if ( pageCount <= 0 ) {
                 logger.error("PDF File Contains no pages");
                 return null;
             }
+
             Document nuDoc = new Document();
             nuDoc.setFileName(inputFile.getAbsolutePath());
             nuDoc.setName(inputFile.getName());
             LinkedList<Page> pages = new LinkedList<>();
-            for ( int i=1; i< pageCount;i++ ) {
+            for ( int i=0; i < pageCount ;i++ ) {
                 BufferedImage b = rend.renderImageWithDPI(i, 100);
                 Page nuPage = new Page();
                 nuPage.setPageNumber(i);
@@ -90,6 +93,7 @@ public class ReadPDFPDFBox implements ReadPDF {
                 //logger.info("Done");
                 //return null;
             }
+            logger.debug("Closing file: " + inputFile.getAbsolutePath());
             doc.close();
             nuDoc.setPages(pages);
             return nuDoc;

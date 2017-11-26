@@ -117,13 +117,13 @@ public class CompareDocsImpl implements  CompareDocs{
         List<Page> bPages = b.getPages();
         MatchScore output = new MatchScore();
         output.setDoc(b);
-        List<PageScore> pageScoresList = new LinkedList<>();
+        output.setPageScores(new LinkedList<PageScore>());
 
         HashMap<Integer,Page> pageMap = new HashMap<>();
         Double sum = 0.00;
 
         logger.debug("Comparing Doc:" + a.getName() + " to :" + b.getName());
-        if ( aPages != null && bPages != null ) {
+        if ( aPages != null && aPages.size() > 0 && bPages != null && bPages.size() > 0) {
             for (Page p : aPages) {
                 logger.debug("Reading Page:" + p.getPageNumber());
                 PageScore bestP = new PageScore();
@@ -146,11 +146,9 @@ public class CompareDocsImpl implements  CompareDocs{
                 logger.debug("Found highest score for " +a.getName() + ":" + p.getPageNumber() + " on "+  b.getName() + ":" + bestP.getMatchPage().getPageNumber() + " Score:" + bestP.getScore());
                 pageMap.put(new Integer(p.getPageNumber()), bestP.getMatchPage());
                 sum+=bestP.getScore();
-                pageScoresList.add(bestP);
+                output.getPageScores().add(bestP);
             }
             logger.debug("Finished Page by Page comparison");
-            output.setPageScores(pageScoresList);
-
             //Average the scores per page:
 
             double averageScore = ( sum / pageMap.size() );
